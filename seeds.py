@@ -41,6 +41,7 @@ def seed_quotes():
         ).save()
 
 
+
 if __name__ == "__main__":
     seed_authors()
     seed_quotes()
