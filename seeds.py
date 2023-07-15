@@ -31,18 +31,33 @@ def seed_authors():
 
 
 def seed_quotes():
-    Quotes.objects().delete()
-    quotes = read_quotes('quotes.json')
-    for quote in quotes:
-        Quotes(
-            tags=quote.get('tags'),
-            author=Authors.objects.get(fullname=quote.get('author')),
-            quote=quote.get('quote'),
-        ).save()
+    with open('quotes.json', 'r') as f:
+        quotes_json = json.load(f)
+
+    for quote in quotes_json:
+        author_name = quote.get('author')
+        # print(author_name)
+        try:
+            author = Authors.objects(fullname=author_name).first()
+        except Authors.DoesNotExist:
+            print(f"Author not found for fullname: {author_name}, skipping quote.")
+            continue
+
+        try:
+            quote_obj = Quotes(
+                quote=quote.get('quote'),
+                author=author,
+                tags=quote.get('tags')
+            )
+            quote_obj.save()
+        except Authors.MultipleObjectsReturned:
+            print(f"Multiple authors found for fullname: {quote.get('author')}")
+
+
 
 
 
 if __name__ == "__main__":
-    seed_authors()
+    # seed_authors()
     seed_quotes()
     disconnect()
